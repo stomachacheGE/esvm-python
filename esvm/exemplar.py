@@ -23,6 +23,13 @@ class Exemplar(object):
 
     @staticmethod
     def load(cls_name, img_id):
+        """
+        Load exemplars from an image.
+
+        Returns:
+        -------
+        List with element being Exemplar object
+        """
         
         from utils import xml_to_cls_bboxs
         

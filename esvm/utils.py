@@ -12,14 +12,21 @@ def xml_to_cls_bboxs(cls, file_path):
     import xmltodict
     
     bbox_list = []
-    #parse .xml into a ordered dict
+    #parse .xml into ordered dict
     with open(file_path, 'r') as file:
         xml_dict = xmltodict.parse(file.read())
+    #if only one object is in picture, firsty
+    #convert xml_dict to a list for later use
+    objects = xml_dict['annotation']['object']
+    if not isinstance(objects, list):
+        objects_list = []
+        objects_list.append(objects)
+        objects = objects_list
         
-    for cls_object in xml_dict['annotation']['object']:
+    for cls_object in objects:
         #only return specified class objects which are not
         #considered to be difficult
-        cls_object_dict = cls_object
+        cls_object_dict = dict(cls_object)
         if (cls_object_dict['name'] == cls) and (cls_object_dict['difficult'] == '0'):
             bndbox = dict(cls_object_dict['bndbox'])
             #order of bbox is: xmin, ymin, xmax, ymax
