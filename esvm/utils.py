@@ -37,3 +37,47 @@ def xml_to_cls_bboxs(cls, file_path):
             continue
     
     return bbox_list
+
+def expand_bbox(bbox, img_size):
+    """
+    Expand region such that is still within image and tries to satisfy
+    these constraints best requirements: each dimension is at least 
+    50 pixels, and max aspect ratio os (.25,4)
+    """
+    for expandloop in range(10000):
+        #get initial dimensions
+        w = bbox[2] - bbox[0] + 1
+        h = bbox[3] - bbox[1] + 1
+        
+        if h > w*4 or w < 50:
+            #make wider
+            bbox[2] = bbox[2] + 1
+            bbox[0] = bbox[0] - 1
+        elif w > h*4 or h < 50:
+            #make taller
+            bbox[3] = bbox[3] + 1
+            bbox[1] = bbox[1] - 1
+        else:
+            break
+        
+    clamp = lambda n, minn, maxn: max(min(maxn,n), minn)
+    #make sure that bbox is still inside the image
+    clamp(bbox[0], 1, img_size[1])
+    clamp(bbox[1], 1, img_size[0])
+    clamp(bbox[2], 1, img_size[1])
+    clamp(bbox[3], 1, img_size[0])
+    
+    return bbox
+
+def feature_pyramid(img):
+    """
+    Compute feature pyramid for different image scales
+    
+    Returns:
+    -------
+    tuple
+        -np.array, each element is a np.array which represents HoG feature
+        -np.array, each element is double-precision number which re
+    
+    """
+        
