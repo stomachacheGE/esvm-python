@@ -10,7 +10,8 @@ from config import *
 
 import numpy as np
 
-from utils import xml_to_cls_bboxs, expand_bbox
+from utils import xml_to_cls_bboxs, expand_bbox, feature_pyramid,
+                  get_matching_mask
 from skimage.io import imread
 
 class Exemplar(object):
@@ -31,6 +32,9 @@ class Exemplar(object):
         as well as to initialize a svm model 
         corresponding to this exemplar.
         """
+        img_path = imagesets_directory + '/' + str(self.img_id) + '.jpg'
+        img = imread(img_path)
+        
         #Expand the bbox to have some minimum and maximum aspect ratio
         #constraints (if it it too horizontal, expand vertically, etc)
         self.bbox = expand_bbox(self.bbox, self.img_size)
@@ -38,7 +42,11 @@ class Exemplar(object):
         Ibox = np.zeros((self.img_size[0], self.img_size[1]),
                          dtype=np.int)
         Ibox[self.bbox[1]:self.bbox[3], self.bbox[0]:self.bbox[2]] = 1
-        return Ibox
+        #get the Hog feature pyramid for the entire image
+        (feat, scale) = feature_pyramid(img)
+        #extract the regions most overlapping with Ibox 
+        #from each level in the pyramid
+        
 
     @staticmethod
     def load(cls_name, img_id):
